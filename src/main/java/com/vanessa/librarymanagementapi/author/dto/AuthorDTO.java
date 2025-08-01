@@ -3,8 +3,10 @@ package com.vanessa.librarymanagementapi.author.dto;
 import com.vanessa.librarymanagementapi.author.model.Author;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
-public record AuthorDTO(String name,
+public record AuthorDTO(UUID id,
+                        String name,
                         LocalDate birthDate,
                         String nationality) {
     public Author mapToAuthor(){

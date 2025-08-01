@@ -5,13 +5,12 @@ import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/author")
@@ -29,5 +28,17 @@ public class AuthorController {
                 .buildAndExpand(author.getId())
                 .toUri();
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<AuthorDTO> getDetails(@PathVariable String id){
+        var authorId = UUID.fromString(id);
+        Optional<Author> optional = service.getById(authorId);
+        if (optional.isPresent()) {
+            Author author = optional.get();
+            AuthorDTO dto = new AuthorDTO(author.getId(), author.getName(), author.getBirthDate(), author.getNationality());
+            return ResponseEntity.ok(dto);
+        }
+        return ResponseEntity.notFound().build();
     }
 }
