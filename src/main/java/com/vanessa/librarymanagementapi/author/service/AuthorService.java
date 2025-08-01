@@ -5,6 +5,7 @@ import com.vanessa.librarymanagementapi.author.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,6 +20,17 @@ public class AuthorService {
 
     public Optional<Author> getById(UUID id){
         return repository.findById(id);
+    }
+
+    public List<Author> search(String name, String nationality){
+        if (name != null && nationality != null){
+            return repository.findByNameAndNationality(name, nationality);
+        } else if (name != null) {
+            return repository.findByName(name);
+        } else if (nationality != null) {
+            return repository.findByNationality(nationality);
+        }
+        return repository.findAll();
     }
 
     public void delete(Author author){
