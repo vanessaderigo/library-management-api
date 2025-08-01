@@ -33,6 +33,13 @@ public class AuthorService {
         return repository.findAll();
     }
 
+    public void update(Author author){
+        if (author.getId() == null){
+            throw new IllegalArgumentException("Not found.");
+        }
+        repository.save(author);
+    }
+
     public void delete(Author author){
         repository.delete(author);
     }
