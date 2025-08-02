@@ -1,6 +1,7 @@
 package com.vanessa.librarymanagementapi.author.controller;
 
 import com.vanessa.librarymanagementapi.author.dto.AuthorDTO;
+import com.vanessa.librarymanagementapi.author.mapper.AuthorMapper;
 import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.service.AuthorService;
 import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
@@ -18,15 +19,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/author")
+@RequestMapping("/authors")
 @RequiredArgsConstructor
 public class AuthorController {
     private final AuthorService service;
+    private final AuthorMapper mapper;
 
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO authorDTO){
         try {
-            Author author = authorDTO.mapToAuthor();
+            Author author = mapper.toEntity(authorDTO);
             service.save(author);
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
@@ -43,21 +45,21 @@ public class AuthorController {
     @GetMapping("{id}")
     public ResponseEntity<AuthorDTO> getDetails(@PathVariable String id){
         var authorId = UUID.fromString(id);
-        Optional<Author> optional = service.getById(authorId);
-        if (optional.isPresent()) {
-            Author author = optional.get();
-            AuthorDTO dto = new AuthorDTO(author.getId(), author.getName(), author.getBirthDate(), author.getNationality());
-            return ResponseEntity.ok(dto);
-        }
-        return ResponseEntity.notFound().build();
+        return service.getById(authorId)
+                .map(author -> {
+                    AuthorDTO dto = mapper.toDTO(author);
+                    return ResponseEntity.ok(dto);
+                }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
     public ResponseEntity<List<AuthorDTO>> search(@RequestParam(required = false) String name,
                                                   @RequestParam(required = false) String nationality){
         List<Author> result = service.search(name, nationality);
-        List<AuthorDTO> authors = result.stream().map(author -> new AuthorDTO(author.getId(), author.getName(),
-                author.getBirthDate(), author.getNationality())).collect(Collectors.toList());
+        List<AuthorDTO> authors = result
+                .stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(authors);
     }
 
