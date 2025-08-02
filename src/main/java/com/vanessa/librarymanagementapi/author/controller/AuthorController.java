@@ -5,6 +5,7 @@ import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.service.AuthorService;
 import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
 import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class AuthorController {
     private final AuthorService service;
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody AuthorDTO authorDTO){
+    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO authorDTO){
         try {
             Author author = authorDTO.mapToAuthor();
             service.save(author);
@@ -61,7 +62,7 @@ public class AuthorController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Object> update(@PathVariable String id, @RequestBody AuthorDTO dto){
+    public ResponseEntity<Object> update(@PathVariable @Valid String id, @RequestBody AuthorDTO dto){
         try {
             var authorId = UUID.fromString(id);
             Optional<Author> optional = service.getById(authorId);
