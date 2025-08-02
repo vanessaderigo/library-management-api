@@ -3,6 +3,8 @@ package com.vanessa.librarymanagementapi.author.controller;
 import com.vanessa.librarymanagementapi.author.dto.AuthorDTO;
 import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.service.AuthorService;
+import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
+import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,15 +23,20 @@ public class AuthorController {
     private final AuthorService service;
 
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody AuthorDTO authorDTO){
-        Author author = authorDTO.mapToAuthor();
-        service.save(author);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("{id}")
-                .buildAndExpand(author.getId())
-                .toUri();
-        return ResponseEntity.created(location).build();
+    public ResponseEntity<Object> save(@RequestBody AuthorDTO authorDTO){
+        try {
+            Author author = authorDTO.mapToAuthor();
+            service.save(author);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("{id}")
+                    .buildAndExpand(author.getId())
+                    .toUri();
+            return ResponseEntity.created(location).build();
+        } catch (DuplicateEntryException e) {
+            var error = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(error.status()).body(error);
+        }
     }
 
     @GetMapping("{id}")
@@ -54,18 +61,23 @@ public class AuthorController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> update(@PathVariable String id, @RequestBody AuthorDTO dto){
-        var authorId = UUID.fromString(id);
-        Optional<Author> optional = service.getById(authorId);
-        if (optional.isEmpty()){
-            ResponseEntity.notFound().build();
+    public ResponseEntity<Object> update(@PathVariable String id, @RequestBody AuthorDTO dto){
+        try {
+            var authorId = UUID.fromString(id);
+            Optional<Author> optional = service.getById(authorId);
+            if (optional.isEmpty()){
+                ResponseEntity.notFound().build();
+            }
+            var author = optional.get();
+            author.setName(dto.name());
+            author.setBirthDate(dto.birthDate());
+            author.setNationality(dto.nationality());
+            service.update(author);
+            return ResponseEntity.noContent().build();
+        } catch (DuplicateEntryException e){
+            var error = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(error.status()).body(error);
         }
-        var author = optional.get();
-        author.setName(dto.name());
-        author.setBirthDate(dto.birthDate());
-        author.setNationality(dto.nationality());
-        service.update(author);
-        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("{id}")

@@ -2,6 +2,7 @@ package com.vanessa.librarymanagementapi.author.service;
 
 import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.repository.AuthorRepository;
+import com.vanessa.librarymanagementapi.author.validator.AuthorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +14,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository repository;
+    private final AuthorValidator validator;
 
     public Author save(Author author){
+        validator.validate(author);
         return repository.save(author);
     }
 
@@ -37,6 +40,7 @@ public class AuthorService {
         if (author.getId() == null){
             throw new IllegalArgumentException("Not found.");
         }
+        validator.validate(author);
         repository.save(author);
     }
 
