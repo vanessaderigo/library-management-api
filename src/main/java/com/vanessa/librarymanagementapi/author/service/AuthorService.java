@@ -6,6 +6,8 @@ import com.vanessa.librarymanagementapi.author.validator.AuthorValidator;
 import com.vanessa.librarymanagementapi.book.repository.BookRepository;
 import com.vanessa.librarymanagementapi.exceptions.OperationNotAllowedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,14 +31,12 @@ public class AuthorService {
     }
 
     public List<Author> search(String name, String nationality){
-        if (name != null && nationality != null){
-            return repository.findByNameAndNationality(name, nationality);
-        } else if (name != null) {
-            return repository.findByName(name);
-        } else if (nationality != null) {
-            return repository.findByNationality(nationality);
-        }
-        return repository.findAll();
+        Author author = new Author();
+        author.setName(name);
+        author.setNationality(nationality);
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues().withIgnoreCase().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+        Example<Author> authorExample = Example.of(author, matcher);
+        return repository.findAll(authorExample);
     }
 
     public void update(Author author){
