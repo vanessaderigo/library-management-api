@@ -3,6 +3,8 @@ package com.vanessa.librarymanagementapi.author.service;
 import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.repository.AuthorRepository;
 import com.vanessa.librarymanagementapi.author.validator.AuthorValidator;
+import com.vanessa.librarymanagementapi.book.repository.BookRepository;
+import com.vanessa.librarymanagementapi.exceptions.OperationNotAllowedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.util.UUID;
 public class AuthorService {
     private final AuthorRepository repository;
     private final AuthorValidator validator;
+    private final BookRepository bookRepository;
 
     public Author save(Author author){
         validator.validate(author);
@@ -45,6 +48,13 @@ public class AuthorService {
     }
 
     public void delete(Author author){
+        if (hasBooks(author)){
+            throw new OperationNotAllowedException("This author can't be deleted because they have books in our system.");
+        }
         repository.delete(author);
+    }
+
+    public boolean hasBooks(Author author){
+        return bookRepository.existsByAuthor(author);
     }
 }
