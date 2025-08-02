@@ -3,20 +3,25 @@ package com.vanessa.librarymanagementapi.book.model;
 import com.vanessa.librarymanagementapi.author.model.Author;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table
 @Data
+@EntityListeners(AuditingEntityListener.class)
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, length = 13)
+    @Column(nullable = false, unique = true, length = 13)
     private String isbn;
 
     @Column(nullable = false, length = 150)
@@ -35,4 +40,15 @@ public class Book {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private Author author;
+
+    @CreatedDate
+    @Column(name = "created_at")
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updateAt;
+
+    @Column(name = "user_id")
+    private UUID userId;
 }
