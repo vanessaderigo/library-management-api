@@ -48,6 +48,13 @@ public class BookService {
        return repository.findAll(specs);
    }
 
+   public void update(Book book){
+       if (book.getId() == null){
+           throw new IllegalArgumentException("Not found.");
+       }
+       repository.save(book);
+   }
+
    public void delete(Book book){
        repository.delete(book);
    }
