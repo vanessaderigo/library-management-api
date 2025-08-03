@@ -4,13 +4,13 @@ import com.vanessa.librarymanagementapi.author.dto.AuthorDTO;
 import com.vanessa.librarymanagementapi.author.mapper.AuthorMapper;
 import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.service.AuthorService;
+import com.vanessa.librarymanagementapi.commom.GenericController;
 import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
 import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/authors")
 @RequiredArgsConstructor
-public class AuthorController {
+public class AuthorController implements GenericController {
     private final AuthorService service;
     private final AuthorMapper mapper;
 
@@ -30,11 +30,7 @@ public class AuthorController {
         try {
             Author author = mapper.toEntity(authorDTO);
             service.save(author);
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("{id}")
-                    .buildAndExpand(author.getId())
-                    .toUri();
+            URI location = headerLocation(author.getId());
             return ResponseEntity.created(location).build();
         } catch (DuplicateEntryException e) {
             var error = ResponseError.conflict(e.getMessage());

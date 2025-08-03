@@ -4,6 +4,7 @@ import com.vanessa.librarymanagementapi.book.dto.BookRegistrationDTO;
 import com.vanessa.librarymanagementapi.book.mapper.BookMapper;
 import com.vanessa.librarymanagementapi.book.model.Book;
 import com.vanessa.librarymanagementapi.book.service.BookService;
+import com.vanessa.librarymanagementapi.commom.GenericController;
 import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
 import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/books")
 @RequiredArgsConstructor
-public class BookController {
+public class BookController implements GenericController {
     private final BookService service;
     private final BookMapper mapper;
 
@@ -26,7 +27,8 @@ public class BookController {
         try {
             Book book = mapper.toEntity(dto);
             service.save(book);
-            return ResponseEntity.ok(book);
+            var url = headerLocation(book.getId());
+            return ResponseEntity.created(url).build();
         } catch (DuplicateEntryException e){
             var error = ResponseError.conflict(e.getMessage());
             return ResponseEntity.status(error.status()).body(error);
