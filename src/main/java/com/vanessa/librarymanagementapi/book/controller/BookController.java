@@ -1,5 +1,6 @@
 package com.vanessa.librarymanagementapi.book.controller;
 
+import com.vanessa.librarymanagementapi.book.dto.BookDetailsDTO;
 import com.vanessa.librarymanagementapi.book.dto.BookRegistrationDTO;
 import com.vanessa.librarymanagementapi.book.mapper.BookMapper;
 import com.vanessa.librarymanagementapi.book.model.Book;
@@ -10,10 +11,9 @@ import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/books")
@@ -33,5 +33,15 @@ public class BookController implements GenericController {
             var error = ResponseError.conflict(e.getMessage());
             return ResponseEntity.status(error.status()).body(error);
         }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BookDetailsDTO> getDetails(@PathVariable String id){
+        var bookId = UUID.fromString(id);
+        return service.getById(bookId)
+                .map(book -> {
+                    BookDetailsDTO dto = mapper.toDTO(book);
+                    return ResponseEntity.ok(dto);
+                }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
