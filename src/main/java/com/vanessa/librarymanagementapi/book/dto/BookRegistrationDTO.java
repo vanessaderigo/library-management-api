@@ -18,6 +18,6 @@ public record BookRegistrationDTO(@NotBlank(message = "Required field")
                                   LocalDate publicationDate,
                                   BookGenre genre,
                                   BigDecimal price,
-                                  @NotBlank(message = "Required field")
+                                  @NotNull(message = "Required field")
                                   UUID authorID) {
 }
