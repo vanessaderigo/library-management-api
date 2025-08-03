@@ -4,6 +4,7 @@ import com.vanessa.librarymanagementapi.book.dto.BookDetailsDTO;
 import com.vanessa.librarymanagementapi.book.dto.BookRegistrationDTO;
 import com.vanessa.librarymanagementapi.book.mapper.BookMapper;
 import com.vanessa.librarymanagementapi.book.model.Book;
+import com.vanessa.librarymanagementapi.book.model.BookGenre;
 import com.vanessa.librarymanagementapi.book.service.BookService;
 import com.vanessa.librarymanagementapi.commom.GenericController;
 import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
@@ -13,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/books")
@@ -43,6 +46,17 @@ public class BookController implements GenericController {
                     BookDetailsDTO dto = mapper.toDTO(book);
                     return ResponseEntity.ok(dto);
                 }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BookDetailsDTO>> search(@RequestParam(value = "isbn", required = false) String isbn,
+                                             @RequestParam(value = "title", required = false) String title,
+                                             @RequestParam(value = "authorName", required = false) String authorName,
+                                             @RequestParam(value = "genre", required = false) BookGenre genre,
+                                             @RequestParam(value = "publicationYear", required = false) Integer publicationYear){
+        var result = service.search(isbn, title, authorName, genre, publicationYear);
+        var list = result.stream().map(mapper::toDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(list);
     }
 
     @DeleteMapping("/{id}")
