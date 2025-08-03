@@ -3,6 +3,7 @@ package com.vanessa.librarymanagementapi.book.service;
 import com.vanessa.librarymanagementapi.book.model.Book;
 import com.vanessa.librarymanagementapi.book.model.BookGenre;
 import com.vanessa.librarymanagementapi.book.repository.BookRepository;
+import com.vanessa.librarymanagementapi.book.validator.BookValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,10 @@ import static com.vanessa.librarymanagementapi.book.repository.specification.Boo
 @RequiredArgsConstructor
 public class BookService {
     private final BookRepository repository;
+    private final BookValidator validator;
 
    public Book save(Book book){
+       validator.validate(book);
        return repository.save(book);
    }
 
@@ -52,6 +55,7 @@ public class BookService {
        if (book.getId() == null){
            throw new IllegalArgumentException("Not found.");
        }
+       validator.validate(book);
        repository.save(book);
    }
 
