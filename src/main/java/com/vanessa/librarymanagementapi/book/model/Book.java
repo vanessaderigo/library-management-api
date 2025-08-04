@@ -34,7 +34,7 @@ public class Book {
     @Enumerated(EnumType.STRING)
     private BookGenre genre;
 
-    @Column(nullable = false, precision = 18, scale = 2)
+    @Column(precision = 18, scale = 2)
     private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
