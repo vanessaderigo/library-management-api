@@ -5,10 +5,12 @@ import com.vanessa.librarymanagementapi.book.model.BookGenre;
 import com.vanessa.librarymanagementapi.book.repository.BookRepository;
 import com.vanessa.librarymanagementapi.book.validator.BookValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,7 +31,7 @@ public class BookService {
        return repository.findById(id);
    }
 
-   public List<Book> search(String isbn, String title, String authorName, BookGenre genre, Integer publicationYear){
+   public Page<Book> search(String isbn, String title, String authorName, BookGenre genre, Integer publicationYear, Integer page, Integer pageSize){
        Specification<Book> specs = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
 
        if (isbn != null){
@@ -48,7 +50,8 @@ public class BookService {
            specs = specs.and(publicationYearEqual(publicationYear));
        }
 
-       return repository.findAll(specs);
+       Pageable pageRequest = PageRequest.of(page, pageSize);
+       return repository.findAll(specs, pageRequest);
    }
 
    public void update(Book book){

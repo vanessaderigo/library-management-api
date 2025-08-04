@@ -11,12 +11,11 @@ import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
 import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/books")
@@ -49,14 +48,16 @@ public class BookController implements GenericController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookDetailsDTO>> search(@RequestParam(value = "isbn", required = false) String isbn,
-                                             @RequestParam(value = "title", required = false) String title,
-                                             @RequestParam(value = "authorName", required = false) String authorName,
-                                             @RequestParam(value = "genre", required = false) BookGenre genre,
-                                             @RequestParam(value = "publicationYear", required = false) Integer publicationYear){
-        var result = service.search(isbn, title, authorName, genre, publicationYear);
-        var list = result.stream().map(mapper::toDTO).collect(Collectors.toList());
-        return ResponseEntity.ok(list);
+    public ResponseEntity<Page<BookDetailsDTO>> search(@RequestParam(value = "isbn", required = false) String isbn,
+                                                       @RequestParam(value = "title", required = false) String title,
+                                                       @RequestParam(value = "authorName", required = false) String authorName,
+                                                       @RequestParam(value = "genre", required = false) BookGenre genre,
+                                                       @RequestParam(value = "publicationYear", required = false) Integer publicationYear,
+                                                       @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                       @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize){
+        Page<Book> pageResult = service.search(isbn, title, authorName, genre, publicationYear, page, pageSize);
+        Page<BookDetailsDTO> result = pageResult.map(mapper::toDTO);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{id}")
