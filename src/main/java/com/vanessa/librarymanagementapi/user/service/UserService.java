@@ -24,4 +24,16 @@ public class UserService {
     public User getByLogin(String login){
         return repository.findByLogin(login);
     }
+
+    public Optional<User> getById(UUID id){
+        return repository.findById(id);
+    }
+
+    public void update(User user){
+        if (user.getId() == null){
+            throw new IllegalArgumentException("Not found.");
+        }
+        user.setPassword(encoder.encode(user.getPassword()));
+        repository.save(user);
+    }
 }

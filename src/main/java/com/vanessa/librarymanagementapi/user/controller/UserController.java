@@ -25,4 +25,17 @@ public class UserController implements GenericController {
         var url = headerLocation(user.getId());
         return ResponseEntity.created(url).build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> update(@PathVariable String id, @RequestBody UserDTO dto){
+        var userId = UUID.fromString(id);
+        return service.getById(userId).map(user -> {
+            User second = mapper.toEntity(dto);
+            user.setLogin(second.getLogin());
+            user.setPassword(second.getPassword());
+            user.setRoles(second.getRoles());
+            service.update(user);
+            return ResponseEntity.noContent().build();
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
