@@ -1,6 +1,7 @@
 package com.vanessa.librarymanagementapi.book.model;
 
 import com.vanessa.librarymanagementapi.author.model.Author;
+import com.vanessa.librarymanagementapi.user.model.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -49,6 +50,7 @@ public class Book {
     @Column(name = "updated_at")
     private LocalDateTime updateAt;
 
-    @Column(name = "user_id")
-    private UUID userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User userId;
 }

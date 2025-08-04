@@ -5,6 +5,8 @@ import com.vanessa.librarymanagementapi.author.repository.AuthorRepository;
 import com.vanessa.librarymanagementapi.author.validator.AuthorValidator;
 import com.vanessa.librarymanagementapi.book.repository.BookRepository;
 import com.vanessa.librarymanagementapi.exceptions.OperationNotAllowedException;
+import com.vanessa.librarymanagementapi.security.AuthenticatedUserProvider;
+import com.vanessa.librarymanagementapi.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -20,9 +22,12 @@ public class AuthorService {
     private final AuthorRepository repository;
     private final AuthorValidator validator;
     private final BookRepository bookRepository;
+    private final AuthenticatedUserProvider userProvider;
 
     public Author save(Author author){
         validator.validate(author);
+        User user = userProvider.getLoggedUser();
+        author.setUserId(user);
         return repository.save(author);
     }
 

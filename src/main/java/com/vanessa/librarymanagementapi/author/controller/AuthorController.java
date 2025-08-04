@@ -5,8 +5,6 @@ import com.vanessa.librarymanagementapi.author.mapper.AuthorMapper;
 import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.service.AuthorService;
 import com.vanessa.librarymanagementapi.commom.GenericController;
-import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
-import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,15 +27,10 @@ public class AuthorController implements GenericController {
     @PostMapping
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO authorDTO){
-        try {
-            Author author = mapper.toEntity(authorDTO);
-            service.save(author);
-            URI location = headerLocation(author.getId());
-            return ResponseEntity.created(location).build();
-        } catch (DuplicateEntryException e) {
-            var error = ResponseError.conflict(e.getMessage());
-            return ResponseEntity.status(error.status()).body(error);
-        }
+        Author author = mapper.toEntity(authorDTO);
+        service.save(author);
+        URI location = headerLocation(author.getId());
+        return ResponseEntity.created(location).build();
     }
 
     @GetMapping("{id}")
@@ -66,22 +59,17 @@ public class AuthorController implements GenericController {
     @PutMapping("{id}")
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> update(@PathVariable @Valid String id, @RequestBody AuthorDTO dto){
-        try {
-            var authorId = UUID.fromString(id);
-            Optional<Author> optional = service.getById(authorId);
-            if (optional.isEmpty()){
-                ResponseEntity.notFound().build();
-            }
-            var author = optional.get();
-            author.setName(dto.name());
-            author.setBirthDate(dto.birthDate());
-            author.setNationality(dto.nationality());
-            service.update(author);
-            return ResponseEntity.noContent().build();
-        } catch (DuplicateEntryException e){
-            var error = ResponseError.conflict(e.getMessage());
-            return ResponseEntity.status(error.status()).body(error);
+        var authorId = UUID.fromString(id);
+        Optional<Author> optional = service.getById(authorId);
+        if (optional.isEmpty()) {
+            ResponseEntity.notFound().build();
         }
+        var author = optional.get();
+        author.setName(dto.name());
+        author.setBirthDate(dto.birthDate());
+        author.setNationality(dto.nationality());
+        service.update(author);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("{id}")

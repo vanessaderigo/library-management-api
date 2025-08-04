@@ -7,8 +7,6 @@ import com.vanessa.librarymanagementapi.book.model.Book;
 import com.vanessa.librarymanagementapi.book.model.BookGenre;
 import com.vanessa.librarymanagementapi.book.service.BookService;
 import com.vanessa.librarymanagementapi.commom.GenericController;
-import com.vanessa.librarymanagementapi.exceptions.DuplicateEntryException;
-import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,15 +26,10 @@ public class BookController implements GenericController {
     @PostMapping
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> save(@RequestBody @Valid BookRegistrationDTO dto){
-        try {
-            Book book = mapper.toEntity(dto);
-            service.save(book);
-            var url = headerLocation(book.getId());
-            return ResponseEntity.created(url).build();
-        } catch (DuplicateEntryException e){
-            var error = ResponseError.conflict(e.getMessage());
-            return ResponseEntity.status(error.status()).body(error);
-        }
+        Book book = mapper.toEntity(dto);
+        service.save(book);
+        var url = headerLocation(book.getId());
+        return ResponseEntity.created(url).build();
     }
 
     @GetMapping("/{id}")

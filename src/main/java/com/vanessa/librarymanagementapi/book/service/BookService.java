@@ -4,6 +4,8 @@ import com.vanessa.librarymanagementapi.book.model.Book;
 import com.vanessa.librarymanagementapi.book.model.BookGenre;
 import com.vanessa.librarymanagementapi.book.repository.BookRepository;
 import com.vanessa.librarymanagementapi.book.validator.BookValidator;
+import com.vanessa.librarymanagementapi.security.AuthenticatedUserProvider;
+import com.vanessa.librarymanagementapi.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,9 +23,12 @@ import static com.vanessa.librarymanagementapi.book.repository.specification.Boo
 public class BookService {
     private final BookRepository repository;
     private final BookValidator validator;
+    private final AuthenticatedUserProvider userProvider;
 
    public Book save(Book book){
        validator.validate(book);
+       User user = userProvider.getLoggedUser();
+       book.setUserId(user);
        return repository.save(book);
    }
 
