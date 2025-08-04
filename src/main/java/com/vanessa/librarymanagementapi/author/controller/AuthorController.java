@@ -10,6 +10,7 @@ import com.vanessa.librarymanagementapi.exceptions.dto.ResponseError;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -26,6 +27,7 @@ public class AuthorController implements GenericController {
     private final AuthorMapper mapper;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO authorDTO){
         try {
             Author author = mapper.toEntity(authorDTO);
@@ -39,6 +41,7 @@ public class AuthorController implements GenericController {
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<AuthorDTO> getDetails(@PathVariable String id){
         var authorId = UUID.fromString(id);
         return service.getById(authorId)
@@ -49,6 +52,7 @@ public class AuthorController implements GenericController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<List<AuthorDTO>> search(@RequestParam(required = false) String name,
                                                   @RequestParam(required = false) String nationality){
         List<Author> result = service.search(name, nationality);
@@ -60,6 +64,7 @@ public class AuthorController implements GenericController {
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> update(@PathVariable @Valid String id, @RequestBody AuthorDTO dto){
         try {
             var authorId = UUID.fromString(id);
@@ -80,6 +85,7 @@ public class AuthorController implements GenericController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> delete(@PathVariable String id){
         var authorId = UUID.fromString(id);
         Optional<Author> optional = service.getById(authorId);

@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -25,6 +26,7 @@ public class BookController implements GenericController {
     private final BookMapper mapper;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> save(@RequestBody @Valid BookRegistrationDTO dto){
         try {
             Book book = mapper.toEntity(dto);
@@ -38,6 +40,7 @@ public class BookController implements GenericController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<BookDetailsDTO> getDetails(@PathVariable String id){
         var bookId = UUID.fromString(id);
         return service.getById(bookId)
@@ -48,6 +51,7 @@ public class BookController implements GenericController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Page<BookDetailsDTO>> search(@RequestParam(value = "isbn", required = false) String isbn,
                                                        @RequestParam(value = "title", required = false) String title,
                                                        @RequestParam(value = "authorName", required = false) String authorName,
@@ -61,6 +65,7 @@ public class BookController implements GenericController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> update(@PathVariable String id, @RequestBody @Valid BookRegistrationDTO dto){
         var bookId = UUID.fromString(id);
         return service.getById(bookId).map(book -> {
@@ -77,6 +82,7 @@ public class BookController implements GenericController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Object> delete(@PathVariable String id){
         var bookId = UUID.fromString(id);
         return service.getById(bookId).map(book -> {

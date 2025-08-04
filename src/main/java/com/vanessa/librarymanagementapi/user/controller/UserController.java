@@ -7,6 +7,7 @@ import com.vanessa.librarymanagementapi.user.model.User;
 import com.vanessa.librarymanagementapi.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -19,6 +20,7 @@ public class UserController implements GenericController {
     private final UserMapper mapper;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> save(@RequestBody UserDTO dto){
         User user = mapper.toEntity(dto);
         service.save(user);
@@ -27,6 +29,7 @@ public class UserController implements GenericController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> update(@PathVariable String id, @RequestBody UserDTO dto){
         var userId = UUID.fromString(id);
         return service.getById(userId).map(user -> {
@@ -40,6 +43,7 @@ public class UserController implements GenericController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Object> delete(@PathVariable String id){
         var userId = UUID.fromString(id);
         return service.getById(userId).map(user -> {
