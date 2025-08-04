@@ -1,0 +1,28 @@
+package com.vanessa.librarymanagementapi.user.controller;
+
+import com.vanessa.librarymanagementapi.commom.GenericController;
+import com.vanessa.librarymanagementapi.user.dto.UserDTO;
+import com.vanessa.librarymanagementapi.user.mapper.UserMapper;
+import com.vanessa.librarymanagementapi.user.model.User;
+import com.vanessa.librarymanagementapi.user.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/users")
+@RequiredArgsConstructor
+public class UserController implements GenericController {
+    private final UserService service;
+    private final UserMapper mapper;
+
+    @PostMapping
+    public ResponseEntity<Object> save(@RequestBody UserDTO dto){
+        User user = mapper.toEntity(dto);
+        service.save(user);
+        var url = headerLocation(user.getId());
+        return ResponseEntity.created(url).build();
+    }
+}
