@@ -38,4 +38,13 @@ public class UserController implements GenericController {
             return ResponseEntity.noContent().build();
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> delete(@PathVariable String id){
+        var userId = UUID.fromString(id);
+        return service.getById(userId).map(user -> {
+            service.delete(user);
+            return ResponseEntity.noContent().build();
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
