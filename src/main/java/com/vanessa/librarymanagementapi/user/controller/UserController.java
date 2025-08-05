@@ -20,7 +20,6 @@ public class UserController implements GenericController {
     private final UserMapper mapper;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
     public ResponseEntity<Object> save(@RequestBody UserDTO dto){
         User user = mapper.toEntity(dto);
         service.save(user);
@@ -35,6 +34,7 @@ public class UserController implements GenericController {
         return service.getById(userId).map(user -> {
             User second = mapper.toEntity(dto);
             user.setLogin(second.getLogin());
+            user.setEmail(second.getEmail());
             user.setPassword(second.getPassword());
             user.setRoles(second.getRoles());
             service.update(user);

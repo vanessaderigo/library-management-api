@@ -25,6 +25,10 @@ public class UserService {
         return repository.findByLogin(login);
     }
 
+    public User getByEmail(String email){
+        return repository.findByEmail(email);
+    }
+
     public Optional<User> getById(UUID id){
         return repository.findById(id);
     }
