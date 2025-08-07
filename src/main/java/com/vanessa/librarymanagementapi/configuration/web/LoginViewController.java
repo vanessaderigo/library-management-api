@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@Tag(name = "authentication")
+@Tag(name = "Authentication")
 public class LoginViewController {
     @GetMapping("/login")
     @Operation(summary = "Login page", description = "Returns the HTML login page.")
