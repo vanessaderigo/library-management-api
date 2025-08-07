@@ -5,6 +5,10 @@ import com.vanessa.librarymanagementapi.author.mapper.AuthorMapper;
 import com.vanessa.librarymanagementapi.author.model.Author;
 import com.vanessa.librarymanagementapi.author.service.AuthorService;
 import com.vanessa.librarymanagementapi.commom.GenericController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +24,18 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/authors")
 @RequiredArgsConstructor
+@Tag(name = "Authors")
 public class AuthorController implements GenericController {
     private final AuthorService service;
     private final AuthorMapper mapper;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
+    @Operation(summary = "Save", description = "Register new author.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Registered successfully."),
+            @ApiResponse(responseCode = "422", description = "Validation error."),
+            @ApiResponse(responseCode = "409", description = "Author already registered.")})
     public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO authorDTO){
         Author author = mapper.toEntity(authorDTO);
         service.save(author);
@@ -35,6 +45,10 @@ public class AuthorController implements GenericController {
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
+    @Operation(summary = "Get Details", description = "Returns author data by id.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Author found."),
+            @ApiResponse(responseCode = "404", description = "Author not found.")})
     public ResponseEntity<AuthorDTO> getDetails(@PathVariable String id){
         var authorId = UUID.fromString(id);
         return service.getById(authorId)
@@ -46,6 +60,8 @@ public class AuthorController implements GenericController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
+    @Operation(summary = "Search", description = "Author search by parameters.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Success.")})
     public ResponseEntity<List<AuthorDTO>> search(@RequestParam(required = false) String name,
                                                   @RequestParam(required = false) String nationality){
         List<Author> result = service.search(name, nationality);
@@ -58,6 +74,11 @@ public class AuthorController implements GenericController {
 
     @PutMapping("{id}")
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
+    @Operation(summary = "Update", description = "Update an existing author.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Successfully updated."),
+            @ApiResponse(responseCode = "404", description = "Author not found."),
+            @ApiResponse(responseCode = "409", description = "Author already registered.")})
     public ResponseEntity<Object> update(@PathVariable @Valid String id, @RequestBody AuthorDTO dto){
         var authorId = UUID.fromString(id);
         Optional<Author> optional = service.getById(authorId);
@@ -74,6 +95,11 @@ public class AuthorController implements GenericController {
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('MANAGER')")
+    @Operation(summary = "Delete", description = "Deletes author by id.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Successfully deleted."),
+            @ApiResponse(responseCode = "400", description = "Author has registered book."),
+            @ApiResponse(responseCode = "404", description = "Author not found.")})
     public ResponseEntity<Void> delete(@PathVariable String id){
         var authorId = UUID.fromString(id);
         Optional<Author> optional = service.getById(authorId);
