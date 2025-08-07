@@ -7,6 +7,10 @@ import com.vanessa.librarymanagementapi.book.model.Book;
 import com.vanessa.librarymanagementapi.book.model.BookGenre;
 import com.vanessa.librarymanagementapi.book.service.BookService;
 import com.vanessa.librarymanagementapi.commom.GenericController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,12 +23,18 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/books")
 @RequiredArgsConstructor
+@Tag(name = "Books")
 public class BookController implements GenericController {
     private final BookService service;
     private final BookMapper mapper;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
+    @Operation(summary = "Save", description = "Register new book.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Registered successfully."),
+            @ApiResponse(responseCode = "409", description = "Book already registered."),
+            @ApiResponse(responseCode = "422", description = "Validation error.")})
     public ResponseEntity<Object> save(@RequestBody @Valid BookRegistrationDTO dto){
         Book book = mapper.toEntity(dto);
         service.save(book);
@@ -34,6 +44,10 @@ public class BookController implements GenericController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
+    @Operation(summary = "Get Details", description = "Returns book data by id.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Book found."),
+            @ApiResponse(responseCode = "404", description = "Book not found.")})
     public ResponseEntity<BookDetailsDTO> getDetails(@PathVariable String id){
         var bookId = UUID.fromString(id);
         return service.getById(bookId)
@@ -45,6 +59,8 @@ public class BookController implements GenericController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
+    @Operation(summary = "Search", description = "Book search by parameters.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Success.")})
     public ResponseEntity<Page<BookDetailsDTO>> search(@RequestParam(value = "isbn", required = false) String isbn,
                                                        @RequestParam(value = "title", required = false) String title,
                                                        @RequestParam(value = "authorName", required = false) String authorName,
@@ -59,6 +75,11 @@ public class BookController implements GenericController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('OPERATOR', 'MANAGER')")
+    @Operation(summary = "Update", description = "Update an existing book.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Successfully updated."),
+            @ApiResponse(responseCode = "404", description = "Book not found."),
+            @ApiResponse(responseCode = "409", description = "Book already registered.")})
     public ResponseEntity<Object> update(@PathVariable String id, @RequestBody @Valid BookRegistrationDTO dto){
         var bookId = UUID.fromString(id);
         return service.getById(bookId).map(book -> {
@@ -76,6 +97,10 @@ public class BookController implements GenericController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
+    @Operation(summary = "Delete", description = "Deletes book by id.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Successfully deleted."),
+            @ApiResponse(responseCode = "404", description = "Book not found.")})
     public ResponseEntity<Object> delete(@PathVariable String id){
         var bookId = UUID.fromString(id);
         return service.getById(bookId).map(book -> {
