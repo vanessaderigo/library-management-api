@@ -40,6 +40,7 @@ public class CustomRegisteredClientsRepository implements RegisteredClientReposi
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .tokenSettings(tokenSettings)
                 .clientSettings(clientSettings)
                 .build();
