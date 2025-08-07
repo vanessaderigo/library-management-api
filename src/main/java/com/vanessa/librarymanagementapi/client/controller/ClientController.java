@@ -5,6 +5,9 @@ import com.vanessa.librarymanagementapi.client.mapper.ClientMapper;
 import com.vanessa.librarymanagementapi.client.model.Client;
 import com.vanessa.librarymanagementapi.client.service.ClientService;
 import com.vanessa.librarymanagementapi.commom.GenericController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/clients")
+@Tag(name = "Clients")
 @RequiredArgsConstructor
 public class ClientController implements GenericController {
     private final ClientService service;
@@ -23,6 +27,8 @@ public class ClientController implements GenericController {
 
     @PostMapping
     @PreAuthorize("hasRole('MANAGER')")
+    @Operation(summary = "Save", description = "Register a client.")
+    @ApiResponse(responseCode = "201", description = "Registered successfully.")
     public ResponseEntity<Object> save(@RequestBody @Valid ClientDTO dto){
         Client client = mapper.toEntity(dto);
         service.save(client);
